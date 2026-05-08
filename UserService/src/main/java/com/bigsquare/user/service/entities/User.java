@@ -1,10 +1,12 @@
 package com.bigsquare.user.service.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ListIterator;
 
 @Getter
 @Setter
@@ -24,5 +26,8 @@ public class User {
     private String email;
     @Column(name = "ABOUT")
     private String about;
+
+    @Transient
+    private List<Rating> ratings = new ArrayList<>();
 
 }
