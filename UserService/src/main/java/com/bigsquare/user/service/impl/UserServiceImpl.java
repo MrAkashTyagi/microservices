@@ -1,5 +1,6 @@
 package com.bigsquare.user.service.impl;
 
+import com.bigsquare.user.service.entities.Hotel;
 import com.bigsquare.user.service.entities.Rating;
 import com.bigsquare.user.service.entities.User;
 import com.bigsquare.user.service.exceptions.ResourceNotfoundException;
@@ -8,13 +9,16 @@ import com.bigsquare.user.service.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,7 +45,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-//    get single user
+    //    get single user
     @Override
     public User findUserById(String id) {
 //get user from the database with use of user repository
@@ -51,10 +55,27 @@ public class UserServiceImpl implements UserService {
 //        localhost:8083/ratings/users/a82d7dbb-96f4-4a80-86d9-2d7562011dfd
 
         RestTemplate restTemplate = new RestTemplate();
-        ArrayList<Rating> ratingsOfUser = restTemplate.getForObject("http://localhost:8083/ratings/users/"+user.getUserId(), ArrayList.class);
+        Rating[] ratingsOfUser = restTemplate.getForObject("http://localhost:8083/ratings/users/" + user.getUserId(), Rating[].class);
         logger.info("forObject: {}", ratingsOfUser);
 
-        user.setRatings(ratingsOfUser);
+
+        List<Rating> ratingList = Arrays.stream(ratingsOfUser).map(rating -> {
+
+//            api call to hotel mservice to get the hotel
+
+//            http://localhost:8082/hotels/a548e0ca-01dd-4d44-a6d5-5e4b47aaedcb
+
+            ResponseEntity<Hotel> hotelByHotelId = restTemplate.getForEntity("http://localhost:8082/hotels/"+rating.getHotelId(), Hotel.class);
+            Hotel hotel = hotelByHotelId.getBody();
+            logger.info("response status code{}", hotelByHotelId.getStatusCode());
+//            set the hotel to rating
+            rating.setHotel(hotel);
+
+//            return the rating
+            return rating;
+        }).collect(Collectors.toList());
+
+        user.setRatings(ratingList);
 
         return user;
     }
