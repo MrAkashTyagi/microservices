@@ -4,6 +4,7 @@ import com.bigsquare.user.service.entities.Hotel;
 import com.bigsquare.user.service.entities.Rating;
 import com.bigsquare.user.service.entities.User;
 import com.bigsquare.user.service.exceptions.ResourceNotfoundException;
+import com.bigsquare.user.service.external.services.HotelService;
 import com.bigsquare.user.service.repositories.UserRepository;
 import com.bigsquare.user.service.services.UserService;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private HotelService hotelService;
+
     @Override
     public User saveUser(User user) {
 //        unique user id
@@ -53,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
 //        fetch ratings of the above user from RATING SERVICE
 //        localhost:8083/ratings/users/a82d7dbb-96f4-4a80-86d9-2d7562011dfd
-        
+
         Rating[] ratingsOfUser = restTemplate.getForObject("http://RATING-SERVICE/ratings/users/" + user.getUserId(), Rating[].class);
         logger.info("forObject: {}", ratingsOfUser);
 
@@ -64,9 +68,12 @@ public class UserServiceImpl implements UserService {
 
 //            http://localhost:8082/hotels/a548e0ca-01dd-4d44-a6d5-5e4b47aaedcb
 
-            ResponseEntity<Hotel> hotelByHotelId = restTemplate.getForEntity("http://HOTEL-SERVICE/hotels/"+rating.getHotelId(), Hotel.class);
-            Hotel hotel = hotelByHotelId.getBody();
-            logger.info("response status code{}", hotelByHotelId.getStatusCode());
+//            ResponseEntity<Hotel> hotelByHotelId = restTemplate.getForEntity("http://HOTEL-SERVICE/hotels/"+rating.getHotelId(), Hotel.class);
+//            Hotel hotel = hotelByHotelId.getBody();
+
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
+
+//            logger.info("response status code{}", hotelByHotelId.getStatusCode());
 //            set the hotel to rating
             rating.setHotel(hotel);
 
