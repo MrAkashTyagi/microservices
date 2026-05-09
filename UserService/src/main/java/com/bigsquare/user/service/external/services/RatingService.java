@@ -16,11 +16,11 @@ public interface RatingService {
 //    post
 
     @PostMapping("/ratings")
-    public Rating createRating(Rating values);
+    public Rating createRating(@RequestBody Rating values);
 
     //    put
     @PutMapping("/ratings/{ratingId}")
-    public Rating updaterating(@PathVariable String ratingId, Rating rating);
+    public Rating updaterating(@PathVariable String ratingId,@RequestBody Rating rating);
 
 
     @DeleteMapping("/ratings/{ratingId}")
