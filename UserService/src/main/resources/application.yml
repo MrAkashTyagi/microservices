@@ -32,3 +32,30 @@ spring:
 #    register-with-eureka: true
 #    service-url:
 #      defaultZone: http://localhost:8761/eureka
+
+
+# Resilience4j Configuration
+resilience4j.circuitbreaker:
+  instances:
+    # 'ratingHotelBreaker' wo naam hai jo aap @CircuitBreaker annotation mein use karenge
+    ratingHotelBreaker:
+      registerHealthIndicator: true
+      slidingWindowSize: 10              # Last 10 calls ko check karega
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: COUNT_BASED
+      minimumNumberOfCalls: 5            # Kam se kam 5 calls ke baad decision lega
+      waitDurationInOpenState: 10s       # 10 second tak circuit OPEN rahega (failure pe)
+      failureRateThreshold: 50           # Agar 50% calls fail hui toh circuit OPEN
+
+# Actuator settings taaki aap health check dekh sakein
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+  endpoint:
+    health:
+      show-details: always
