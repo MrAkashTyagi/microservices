@@ -6,6 +6,7 @@ import com.bigsquare.user.service.impl.UserServiceImpl;
 import java.util.List;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +32,23 @@ public class UserController {
 
 //    single user get
 
-    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    int retryCount = 1;
+
+//    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    @Retry(name = "ratingHotelService", fallbackMethod = "ratingHotelFallback")
     @GetMapping("/{userId}")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId) {
+        logger.info("Retry count {} :"+retryCount);
+        retryCount++;
         return ResponseEntity.ok(this.userServiceImpl.findUserById(userId));
     }
 
+
+
     public ResponseEntity<User> ratingHotelFallback(String userId, Exception ex) {
 
-        logger.info("Fallback execute ho raha hai kyunki service down hai: {} ", ex.getMessage());
+//        logger.info("Fallback execute ho raha hai kyunki service down hai: {} ", ex.getMessage());
+
         User user = User.builder()
                 .name("Dummy User")
                 .about("This dummy user is created because some service is down !!")

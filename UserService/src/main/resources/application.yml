@@ -47,6 +47,15 @@ resilience4j.circuitbreaker:
       waitDurationInOpenState: 10s       # 10 second tak circuit OPEN rahega (failure pe)
       failureRateThreshold: 50           # Agar 50% calls fail hui toh circuit OPEN
 
+resilience4j:
+  retry:
+    instances:
+      ratingHotelService:
+        max-attempts: 3
+        wait-duration: 3s
+
+
+
 # Actuator settings taaki aap health check dekh sakein
 management:
   health:
@@ -59,3 +68,4 @@ management:
   endpoint:
     health:
       show-details: always
+
