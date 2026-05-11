@@ -53,7 +53,12 @@ resilience4j:
       ratingHotelService:
         max-attempts: 3
         wait-duration: 3s
-
+  ratelimiter:
+    instances:
+      userRateLimiter:
+        limit-refresh-period: 4s
+        limit-for-period: 1
+        timeout-duration: 0s
 
 
 # Actuator settings taaki aap health check dekh sakein
